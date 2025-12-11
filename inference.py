@@ -117,7 +117,7 @@ def prepare_inputs(batch: dict, device: torch.device) -> tuple[dict, int]:
 
 
 def transcribe(
-    checkpoint_dir: Path,
+    checkpoint_dir: str,
     audio_path: Path,
     tokenizer_path: str,
     max_new_tokens: int,
@@ -185,7 +185,7 @@ def transcribe(
 def main():
     parser = argparse.ArgumentParser(description="Minimal ASR transcription demo.")
     parser.add_argument(
-        "--checkpoint_dir", type=str, default=str(Path(__file__).parent)
+        "--checkpoint_dir", type=str, default="zai-org/GLM-ASR-Nano-2512"
     )
     parser.add_argument("--audio", type=str, required=True, help="Path to audio file.")
     parser.add_argument(
@@ -202,7 +202,7 @@ def main():
     args = parser.parse_args()
 
     transcribe(
-        checkpoint_dir=Path(args.checkpoint_dir),
+        checkpoint_dir=args.checkpoint_dir,
         audio_path=Path(args.audio),
         tokenizer_path=args.tokenizer_path,
         max_new_tokens=args.max_new_tokens,
