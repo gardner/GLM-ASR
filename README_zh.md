@@ -44,7 +44,7 @@
 
 ## 推理
 
-`GLM-ASR-Nano-2512` 可通过 `transformers` 库轻松集成。  
+`GLM-ASR-Nano-2512` 可通过 `transformers` 库轻松集成。
 我们将支持 `transformers 5.x` 以及 `vLLM`、`SGLang` 等推理框架。
 
 ### 环境依赖
@@ -59,6 +59,18 @@ sudo apt install ffmpeg
 ```shell
 python inference.py --checkpoint_dir zai-org/GLM-ASR-Nano-2512 --audio examples/example_en.wav # 英文
 python inference.py --checkpoint_dir zai-org/GLM-ASR-Nano-2512 --audio examples/example_zh.wav # 中文
+```
+
+#### 量化 (Quantization)
+
+您可以使用 `--quantize` 参数来降低显存占用：
+
+```shell
+# 4-bit 量化 (最大程度节省显存)
+python inference.py --checkpoint_dir zai-org/GLM-ASR-Nano-2512 --audio examples/example_en.wav --quantize 4
+
+# 8-bit 量化
+python inference.py --checkpoint_dir zai-org/GLM-ASR-Nano-2512 --audio examples/example_en.wav --quantize 8
 ```
 
 对于上述两段示例音频，模型能够生成准确的转录结果：

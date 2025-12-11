@@ -48,7 +48,7 @@ Notes:
 
 ## Inference
 
-`GLM-ASR-Nano-2512` can be easily integrated using the `transformers` library.  
+`GLM-ASR-Nano-2512` can be easily integrated using the `transformers` library.
 We will support `transformers 5.x` as well as inference frameworks such as `vLLM` and `SGLang`.
 
 ### Requirements
@@ -63,6 +63,18 @@ sudo apt install ffmpeg
 ```shell
 python inference.py --checkpoint_dir zai-org/GLM-ASR-Nano-2512 --audio examples/example_en.wav # English
 python inference.py --checkpoint_dir zai-org/GLM-ASR-Nano-2512 --audio examples/example_zh.wav # 中文
+```
+
+#### Quantization
+
+You can use the `--quantize` argument to reduce VRAM usage:
+
+```shell
+# 4-bit quantization (Maximum VRAM savings)
+python inference.py --checkpoint_dir zai-org/GLM-ASR-Nano-2512 --audio examples/example_en.wav --quantize 4
+
+# 8-bit quantization
+python inference.py --checkpoint_dir zai-org/GLM-ASR-Nano-2512 --audio examples/example_en.wav --quantize 8
 ```
 
 For the two example audio clips above, the model is able to produce accurate transcription results. They are:

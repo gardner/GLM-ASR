@@ -8,6 +8,7 @@ from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
     WhisperFeatureExtractor,
+    BitsAndBytesConfig,
 )
 
 WHISPER_FEAT_CFG = {
@@ -121,18 +122,43 @@ def transcribe(
     tokenizer_path: str,
     max_new_tokens: int,
     device: str,
+    quantize: int = None,
 ):
     tokenizer_source = tokenizer_path if tokenizer_path else checkpoint_dir
     tokenizer = AutoTokenizer.from_pretrained(tokenizer_source)
     feature_extractor = WhisperFeatureExtractor(**WHISPER_FEAT_CFG)
 
     config = AutoConfig.from_pretrained(checkpoint_dir, trust_remote_code=True)
+
+    quantization_config = None
+    if quantize == 4:
+        quantization_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_compute_dtype=torch.bfloat16,
+            bnb_4bit_use_double_quant=True,
+            bnb_4bit_quant_type="nf4",
+        )
+    elif quantize == 8:
+        quantization_config = BitsAndBytesConfig(load_in_8bit=True)
+
+    model_kwargs = {
+        "config": config,
+        "torch_dtype": torch.bfloat16,
+        "trust_remote_code": True,
+    }
+
+    if quantization_config:
+        model_kwargs["quantization_config"] = quantization_config
+        model_kwargs["device_map"] = "auto"
+
     model = AutoModelForCausalLM.from_pretrained(
         checkpoint_dir,
-        config=config,
-        torch_dtype=torch.bfloat16,
-        trust_remote_code=True,
-    ).to(device)
+        **model_kwargs,
+    )
+
+    if not quantization_config:
+        model = model.to(device)
+
     model.eval()
 
     batch = build_prompt(
@@ -172,6 +198,7 @@ def main():
     parser.add_argument(
         "--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu"
     )
+    parser.add_argument("--quantize", type=int, choices=[4, 8], help="Quantization bits (4 or 8)")
     args = parser.parse_args()
 
     transcribe(
@@ -180,6 +207,7 @@ def main():
         tokenizer_path=args.tokenizer_path,
         max_new_tokens=args.max_new_tokens,
         device=args.device,
+        quantize=args.quantize,
     )
 
 
